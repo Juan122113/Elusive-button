@@ -1,0 +1,44 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    background-color: burlywood;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+}
+
+button {
+    background-color: crimson;
+    position: absolute;
+    padding: .5rem 1.25rem;
+    border-radius: 25px;
+    color: white;
+    /* transition-property: translate;
+    transition-duration: 4s;
+    transition-delay: 2s; */
+    height: 3.5rem;
+}
+
+/* button:hover {
+    transform: translate(25vw, 50vh);
+} */
+
+.click {
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1rem;
+    word-break: keep-all;
+}
+
+.or {
+    font-weight: 100;
+    font-size: .7rem;
+}
