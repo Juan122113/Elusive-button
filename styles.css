@@ -17,7 +17,8 @@ body {
 
 button {
     background-color: crimson;
-    position: absolute;
+    /* position: absolute; */
+    position: fixed;
     padding: .5rem 1.25rem;
     border-radius: 25px;
     color: white;
