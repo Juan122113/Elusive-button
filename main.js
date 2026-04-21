@@ -1,23 +1,38 @@
-
 const button = document.getElementById("button");
-let moving = false; // flag to prevent multiple movements
+
+let moveTimeout;
 
 function moveButton() {
-  const bottom = Math.random() * 90;
-  const left = Math.random() * 90;
+  const bottom = Math.floor(Math.random() * 90);
+  const left = Math.floor(Math.random() * 90);
+
   button.style.bottom = bottom + "vh";
   button.style.left = left + "vw";
 }
 
-// Initial position
-moveButton();
+function scheduleRandomMove() {
+  clearTimeout(moveTimeout);
 
-button.addEventListener("mouseover", () => {
-  if (moving) return; // prevent new movements if one is already pending
-  moving = true;
+  const delay = Math.floor(Math.random() * 1000) + 500; // 500ms to 1500ms
 
-  setTimeout(() => {
+  moveTimeout = setTimeout(() => {
     moveButton();
-    moving = false; // allow movement again
-  }, Math.random() * 500);
+    scheduleRandomMove();
+  }, delay);
+}
+
+moveButton();
+scheduleRandomMove();
+
+button.addEventListener("pointerenter", (e) => {
+  if (e.pointerType === "mouse") {
+    moveButton();
+  }
+});
+
+button.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "touch" || e.pointerType === "pen") {
+    e.preventDefault();
+    moveButton();
+  }
 });
