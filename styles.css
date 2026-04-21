@@ -17,14 +17,22 @@ body {
     height: 100vh;
 }
 
-#score {
+#score,
+#timer {
   position: fixed;
-  top: 16px;
   left: 16px;
   z-index: 1000;
   font-family: Arial, sans-serif;
   font-size: 20px;
   font-weight: bold;
+}
+
+#score {
+  top: 16px;
+}
+
+#timer {
+  top: 48px;
 }
 
 button {
@@ -33,21 +41,10 @@ button {
     padding: .5rem 1.25rem;
     border-radius: 25px;
     color: white;
-    /* transition-property: translate;
-    transition-duration: 4s;
-    transition-delay: 2s; */
     height: 3.5rem;
     touch-action: manipulation;
     z-index: 999;
 }
-
-.or {
-  font-size: .2rem;
-}
-
-/* button:hover {
-    transform: translate(25vw, 50vh);
-} */
 
 .click {
     margin-bottom: 0;
@@ -57,6 +54,6 @@ button {
 }
 
 .or {
-    font-weight: 100;
+    font-weight: 400;
     font-size: .7rem;
 }

@@ -1,19 +1,29 @@
 const button = document.getElementById("button");
+const scoreEl = document.getElementById("score");
 
 let moveTimeout;
+let score = 0;
+let ignoreNextClick = false;
+
+function updateScore() {
+  scoreEl.textContent = `Clicks: ${score}`;
+}
 
 function moveButton() {
-  const bottom = Math.floor(Math.random() * 90);
-  const left = Math.floor(Math.random() * 90);
+  const maxX = window.innerWidth - button.offsetWidth;
+  const maxY = window.innerHeight - button.offsetHeight;
 
-  button.style.bottom = bottom + "vh";
-  button.style.left = left + "vw";
+  const x = Math.max(0, Math.floor(Math.random() * maxX));
+  const y = Math.max(0, Math.floor(Math.random() * maxY));
+
+  button.style.left = `${x}px`;
+  button.style.top = `${y}px`;
 }
 
 function scheduleRandomMove() {
   clearTimeout(moveTimeout);
 
-  const delay = Math.floor(Math.random() * 1000) + 500; // 500ms to 1500ms
+  const delay = Math.floor(Math.random() * 1500) + 300;
 
   moveTimeout = setTimeout(() => {
     moveButton();
@@ -21,8 +31,35 @@ function scheduleRandomMove() {
   }, delay);
 }
 
-moveButton();
-scheduleRandomMove();
+button.addEventListener("click", () => {
+  if (ignoreNextClick) {
+    ignoreNextClick = false;
+    return;
+  }
+
+  score++;
+  updateScore();
+
+  clearTimeout(moveTimeout);
+  setTimeout(() => {
+    moveButton();
+    scheduleRandomMove();
+  }, 120);
+});
+
+button.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "touch" || e.pointerType === "pen") {
+    e.preventDefault();
+    ignoreNextClick = true;
+
+    score++;
+    updateScore();
+
+    clearTimeout(moveTimeout);
+    moveButton();
+    scheduleRandomMove();
+  }
+});
 
 button.addEventListener("pointerenter", (e) => {
   if (e.pointerType === "mouse") {
@@ -30,9 +67,6 @@ button.addEventListener("pointerenter", (e) => {
   }
 });
 
-button.addEventListener("pointerdown", (e) => {
-  if (e.pointerType === "touch" || e.pointerType === "pen") {
-    e.preventDefault();
-    moveButton();
-  }
-});
+moveButton();
+updateScore();
+scheduleRandomMove();
