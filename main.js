@@ -6,12 +6,16 @@ const gameOverScreen = document.getElementById("gameOverScreen");
 const finalScoreEl = document.getElementById("finalScore");
 const restartBtn = document.getElementById("restartBtn");
 
+const startScreen = document.getElementById("startScreen");
+const startBtn = document.getElementById("startBtn");
+
 let moveTimeout;
 let timerInterval;
 
 let score = 0;
 let timeLeft = 10;
-let gameOver = false;
+let gameOver = true;
+let gameStarted = false;
 let ignoreNextClick = false;
 
 // ---------- UI ----------
@@ -63,7 +67,25 @@ function startTimer() {
   }, 1000);
 }
 
-// ---------- Fin del juego ----------
+// ---------- Juego ----------
+function startGame() {
+  score = 0;
+  timeLeft = 10;
+  gameOver = false;
+  gameStarted = true;
+  ignoreNextClick = false;
+
+  updateScore();
+  updateTimer();
+
+  startScreen.classList.add("hidden");
+  gameOverScreen.classList.add("hidden");
+
+  moveButton();
+  startTimer();
+  scheduleRandomMove();
+}
+
 function endGame() {
   gameOver = true;
 
@@ -71,14 +93,11 @@ function endGame() {
   clearInterval(timerInterval);
 
   timerEl.textContent = "Time: 0s";
-
   finalScoreEl.textContent = `Final score: ${score}`;
   gameOverScreen.classList.remove("hidden");
 }
 
 // ---------- Eventos ----------
-
-// Click (desktop + fallback móvil)
 button.addEventListener("click", () => {
   if (gameOver) return;
 
@@ -98,7 +117,6 @@ button.addEventListener("click", () => {
   }, 120);
 });
 
-// Touch (móvil)
 button.addEventListener("pointerdown", (e) => {
   if (gameOver) return;
 
@@ -115,7 +133,6 @@ button.addEventListener("pointerdown", (e) => {
   }
 });
 
-// Hover (mouse)
 button.addEventListener("pointerenter", (e) => {
   if (gameOver) return;
 
@@ -124,24 +141,14 @@ button.addEventListener("pointerenter", (e) => {
   }
 });
 
-// Reiniciar juego
+startBtn.addEventListener("click", startGame);
+
 restartBtn.addEventListener("click", () => {
-  score = 0;
-  timeLeft = 10;
-  gameOver = false;
-
-  updateScore();
-  updateTimer();
-
-  gameOverScreen.classList.add("hidden");
-
-  moveButton();
-  startTimer();
-  scheduleRandomMove();
+  startGame();
 });
 
 // ---------- Init ----------
-moveButton();
 updateScore();
-startTimer();
-scheduleRandomMove();
+updateTimer();
+gameOverScreen.classList.add("hidden");
+startScreen.classList.remove("hidden");
