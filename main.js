@@ -6,12 +6,15 @@ const gameOverScreen = document.getElementById("gameOverScreen");
 const finalScoreEl = document.getElementById("finalScore");
 const restartBtn = document.getElementById("restartBtn");
 
+const startScreen = document.getElementById("startScreen");
+const startBtn = document.getElementById("startBtn");
+
 let moveTimeout;
 let timerInterval;
 
 let score = 0;
 let timeLeft = 10;
-let gameOver = false;
+let gameOver = true;
 let ignoreNextClick = false;
 
 // ---------- UI ----------
@@ -23,7 +26,7 @@ function updateTimer() {
   timerEl.textContent = `Time: ${timeLeft}s`;
 }
 
-// ---------- Movimiento ----------
+// ---------- Movement ----------
 function moveButton() {
   const maxX = window.innerWidth - button.offsetWidth;
   const maxY = window.innerHeight - button.offsetHeight;
@@ -35,12 +38,23 @@ function moveButton() {
   button.style.top = `${y}px`;
 }
 
+function getRandomMoveDelay() {
+  // Base delay gets smaller as the score increases
+  // Minimum delay: 150ms
+  // Maximum delay: 1500ms
+  const maxDelay = 1500;
+  const minDelay = 150;
+  const reductionPerPoint = 50;
+
+  return Math.max(minDelay, maxDelay - score * reductionPerPoint);
+}
+
 function scheduleRandomMove() {
   if (gameOver) return;
 
   clearTimeout(moveTimeout);
 
-  const delay = Math.floor(Math.random() * 1500) + 300;
+  const delay = Math.floor(Math.random() * getRandomMoveDelay()) + 100;
 
   moveTimeout = setTimeout(() => {
     if (gameOver) return;
@@ -63,7 +77,24 @@ function startTimer() {
   }, 1000);
 }
 
-// ---------- Fin del juego ----------
+// ---------- Game flow ----------
+function startGame() {
+  score = 0;
+  timeLeft = 10;
+  gameOver = false;
+  ignoreNextClick = false;
+
+  updateScore();
+  updateTimer();
+
+  startScreen.classList.add("hidden");
+  gameOverScreen.classList.add("hidden");
+
+  moveButton();
+  startTimer();
+  scheduleRandomMove();
+}
+
 function endGame() {
   gameOver = true;
 
@@ -71,14 +102,13 @@ function endGame() {
   clearInterval(timerInterval);
 
   timerEl.textContent = "Time: 0s";
-
   finalScoreEl.textContent = `Final score: ${score}`;
   gameOverScreen.classList.remove("hidden");
 }
 
-// ---------- Eventos ----------
+// ---------- Events ----------
 
-// Click (desktop + fallback móvil)
+// Desktop click
 button.addEventListener("click", () => {
   if (gameOver) return;
 
@@ -90,6 +120,7 @@ button.addEventListener("click", () => {
   score++;
   updateScore();
 
+  // Move the button shortly after the click
   clearTimeout(moveTimeout);
   setTimeout(() => {
     if (gameOver) return;
@@ -98,7 +129,7 @@ button.addEventListener("click", () => {
   }, 120);
 });
 
-// Touch (móvil)
+// Mobile touch
 button.addEventListener("pointerdown", (e) => {
   if (gameOver) return;
 
@@ -109,13 +140,14 @@ button.addEventListener("pointerdown", (e) => {
     score++;
     updateScore();
 
+    // Move immediately after the tap
     clearTimeout(moveTimeout);
     moveButton();
     scheduleRandomMove();
   }
 });
 
-// Hover (mouse)
+// Mouse hover
 button.addEventListener("pointerenter", (e) => {
   if (gameOver) return;
 
@@ -124,24 +156,12 @@ button.addEventListener("pointerenter", (e) => {
   }
 });
 
-// Reiniciar juego
-restartBtn.addEventListener("click", () => {
-  score = 0;
-  timeLeft = 10;
-  gameOver = false;
+startBtn.addEventListener("click", startGame);
 
-  updateScore();
-  updateTimer();
-
-  gameOverScreen.classList.add("hidden");
-
-  moveButton();
-  startTimer();
-  scheduleRandomMove();
-});
+restartBtn.addEventListener("click", startGame);
 
 // ---------- Init ----------
-moveButton();
 updateScore();
-startTimer();
-scheduleRandomMove();
+updateTimer();
+gameOverScreen.classList.add("hidden");
+startScreen.classList.remove("hidden");
