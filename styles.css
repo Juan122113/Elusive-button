@@ -52,15 +52,17 @@ body {
   display: none;
 }
 
-button {
+#button {
     background-color: crimson;
     position: fixed;
-    padding: .5rem 1.25rem;
+    /* padding: .5rem 1.25rem; */
+    padding: clamp(10px, 1.5vmin, 20px) clamp(16px, 3vmin, 40px);
     border-radius: 25px;
     color: white;
     height: 3.5rem;
     touch-action: manipulation;
     z-index: 999;
+    font-size: clamp(14px, 2vmin, 28px);
 }
 
 .click {
@@ -73,6 +75,7 @@ button {
 .or {
     font-weight: 400;
     font-size: .7rem;
+    display: block;
 }
 
 /* Game Over overlay */

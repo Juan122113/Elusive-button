@@ -148,13 +148,13 @@ button.addEventListener("pointerdown", (e) => {
 });
 
 // Mouse hover
-button.addEventListener("pointerenter", (e) => {
-  if (gameOver) return;
+// button.addEventListener("pointerenter", (e) => {
+//   if (gameOver) return;
 
-  if (e.pointerType === "mouse") {
-    moveButton();
-  }
-});
+//   if (e.pointerType === "mouse") {
+//     moveButton();
+//   }
+// });
 
 startBtn.addEventListener("click", startGame);
 
