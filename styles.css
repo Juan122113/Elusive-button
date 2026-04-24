@@ -70,7 +70,10 @@ button {
   --scale: 1;
 
   transform: scale(var(--scale));
-  transition: transform 0.2s ease, border-radius 0.2s;
+  transform-origin: center;
+  /* transition: transform 0.2s ease, border-radius 0.2s; */
+  transition: transform 0.15s ease, border-radius 0.15s ease, clip-path 0.15s ease, left 0.12s linear, top 0.12s linear;
+  will-change: transform, border-radius, clip-path, left, top;
 }
 
 .click {

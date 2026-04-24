@@ -18,6 +18,9 @@ let timeLeft = 10;
 let gameOver = true;
 let ignoreNextClick = false;
 
+let currentScaleX = 1;
+let currentScaleY = 1;
+
 // ---------- UI ----------
 function updateScore() {
   scoreEl.textContent = `Score: ${score}`;
@@ -29,74 +32,78 @@ function updateTimer() {
 
 // ---------- Difficulty ----------
 function getLevel() {
-  // Increase level every 5 points
-  return Math.floor(score /2);
+  return Math.floor(score / 2);
 }
 
-// ---------- Button size (difficulty scaling) ----------
-function updateButtonSize() {
-  const level = getLevel();
-
-  // Base sizes
-  // const baseFont = 28;
-  // const basePaddingY = 20;
-  // const basePaddingX = 40;
-
-  // Shrink rate per level
-  // const shrinkFactor = 2;
-
-  // Minimum sizes (to avoid impossible gameplay)
-  // const minFont = 12;
-  // const minPaddingY = 6;
-  // const minPaddingX = 12;
-
-  // const fontSize = Math.max(minFont, baseFont - level * shrinkFactor);
-  // const paddingY = Math.max(minPaddingY, basePaddingY - level * 1.5);
-  // const paddingX = Math.max(minPaddingX, basePaddingX - level * 2);
-
-  // button.style.fontSize = fontSize + "px";
-  // button.style.padding = `${paddingY}px ${paddingX}px`;
-
-
-
-  // Each level reduces size slightly
-  const scale = Math.max(0.25, 1 - level * 0.05);
-
-  button.style.setProperty("--scale", scale);
-
+// ---------- Helpers ----------
+function randomBetween(min, max) {
+  return Math.random() * (max - min) + min;
 }
 
+// ---------- Shapes ----------
 function randomBlobBorderRadius() {
   const r = () => Math.floor(Math.random() * 100) + "%";
-
   return `${r()} ${r()} ${r()} ${r()} / ${r()} ${r()} ${r()} ${r()}`;
 }
 
-function updateButtonShape() {
-  button.style.borderRadius = randomBlobBorderRadius();
+function randomGeometricClipPath() {
+  const shapes = [
+    "circle(50% at 50% 50%)",
+    "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+    "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+    "polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%)",
+    "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)"
+  ];
+
+  return shapes[Math.floor(Math.random() * shapes.length)];
+}
+
+// ---------- Visual changes ----------
+function updateButtonLook() {
+  const level = getLevel();
+
+  // Base shrinking with level
+  const baseScale = Math.max(0.25, 1 - level * 0.05);
+
+  // Random stretch/squash
+  currentScaleX = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
+  currentScaleY = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
+
+  button.style.transform = `scale(${currentScaleX}, ${currentScaleY})`;
+
+  // Random shape type
+  if (Math.random() < 0.4) {
+    button.style.borderRadius = "0";
+    button.style.clipPath = randomGeometricClipPath();
+  } else {
+    button.style.clipPath = "none";
+    button.style.borderRadius = randomBlobBorderRadius();
+  }
 }
 
 // ---------- Movement ----------
 function moveButton() {
-  const maxX = window.innerWidth - button.offsetWidth;
-  const maxY = window.innerHeight - button.offsetHeight;
+  updateButtonLook();
 
-  const x = Math.max(0, Math.floor(Math.random() * maxX));
-  const y = Math.max(0, Math.floor(Math.random() * maxY));
+  const visualWidth = button.offsetWidth * currentScaleX;
+  const visualHeight = button.offsetHeight * currentScaleY;
+
+  const maxX = Math.max(0, window.innerWidth - visualWidth);
+  const maxY = Math.max(0, window.innerHeight - visualHeight);
+
+  const x = Math.floor(Math.random() * maxX);
+  const y = Math.floor(Math.random() * maxY);
 
   button.style.left = `${x}px`;
   button.style.top = `${y}px`;
-
-  updateButtonShape()
 }
 
-// Calculate delay based on score (higher score = faster movement)
+// ---------- Speed ----------
 function getRandomMoveDelay() {
   const maxDelay = 1500;
-  const minDelay = 150;
-  const reductionPerPoint = 50;
+  const minDelay = 120;
+  const reductionPerPoint = 40;
 
-  // Delay decreases as score increases but never below minDelay
   return Math.max(minDelay, maxDelay - score * reductionPerPoint);
 }
 
@@ -105,8 +112,7 @@ function scheduleRandomMove() {
 
   clearTimeout(moveTimeout);
 
-  // Random delay within the allowed range
-  const delay = Math.floor(Math.random() * getRandomMoveDelay()) + 100;
+  const delay = Math.random() * getRandomMoveDelay() + 100;
 
   moveTimeout = setTimeout(() => {
     if (gameOver) return;
@@ -131,7 +137,6 @@ function startTimer() {
 
 // ---------- Game flow ----------
 function startGame() {
-  // Reset game state
   score = 0;
   timeLeft = 20;
   gameOver = false;
@@ -139,13 +144,10 @@ function startGame() {
 
   updateScore();
   updateTimer();
-  updateButtonSize();
 
-  // Hide overlays
   startScreen.classList.add("hidden");
   gameOverScreen.classList.add("hidden");
 
-  // Start game
   moveButton();
   startTimer();
   scheduleRandomMove();
@@ -169,7 +171,6 @@ function endGame() {
 button.addEventListener("click", () => {
   if (gameOver) return;
 
-  // Prevent double count from touch
   if (ignoreNextClick) {
     ignoreNextClick = false;
     return;
@@ -177,19 +178,17 @@ button.addEventListener("click", () => {
 
   score++;
   updateScore();
-  updateButtonSize();
-  updateButtonShape()
 
-  // Move shortly after click for better gameplay feel
   clearTimeout(moveTimeout);
   setTimeout(() => {
-    if (gameOver) return;
-    moveButton();
-    scheduleRandomMove();
+    if (!gameOver) {
+      moveButton();
+      scheduleRandomMove();
+    }
   }, 120);
 });
 
-// Mobile touch (instant reaction)
+// Mobile touch
 button.addEventListener("pointerdown", (e) => {
   if (gameOver) return;
 
@@ -199,10 +198,7 @@ button.addEventListener("pointerdown", (e) => {
 
     score++;
     updateScore();
-    updateButtonSize();
-    updateButtonShape()
 
-    // Move immediately on touch
     clearTimeout(moveTimeout);
     moveButton();
     scheduleRandomMove();
@@ -216,7 +212,6 @@ restartBtn.addEventListener("click", startGame);
 // ---------- Init ----------
 updateScore();
 updateTimer();
-updateButtonSize();
 
 gameOverScreen.classList.add("hidden");
 startScreen.classList.remove("hidden");
