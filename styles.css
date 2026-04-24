@@ -52,7 +52,7 @@ body {
   display: none;
 }
 
-#button {
+button {
     background-color: crimson;
     position: fixed;
     /* padding: .5rem 1.25rem; */
