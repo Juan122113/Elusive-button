@@ -66,6 +66,16 @@ function updateButtonSize() {
 
 }
 
+function randomBlobBorderRadius() {
+  const r = () => Math.floor(Math.random() * 100) + "%";
+
+  return `${r()} ${r()} ${r()} ${r()} / ${r()} ${r()} ${r()} ${r()}`;
+}
+
+function updateButtonShape() {
+  button.style.borderRadius = randomBlobBorderRadius();
+}
+
 // ---------- Movement ----------
 function moveButton() {
   const maxX = window.innerWidth - button.offsetWidth;
@@ -76,6 +86,8 @@ function moveButton() {
 
   button.style.left = `${x}px`;
   button.style.top = `${y}px`;
+
+  updateButtonShape()
 }
 
 // Calculate delay based on score (higher score = faster movement)
@@ -166,6 +178,7 @@ button.addEventListener("click", () => {
   score++;
   updateScore();
   updateButtonSize();
+  updateButtonShape()
 
   // Move shortly after click for better gameplay feel
   clearTimeout(moveTimeout);
@@ -187,6 +200,7 @@ button.addEventListener("pointerdown", (e) => {
     score++;
     updateScore();
     updateButtonSize();
+    updateButtonShape()
 
     // Move immediately on touch
     clearTimeout(moveTimeout);
