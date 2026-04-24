@@ -63,6 +63,14 @@ button {
     touch-action: manipulation;
     z-index: 999;
     font-size: clamp(14px, 2vmin, 28px);
+    text-align: center;
+}
+
+#button {
+  --scale: 1;
+
+  transform: scale(var(--scale));
+  transition: transform 0.2s ease;
 }
 
 .click {

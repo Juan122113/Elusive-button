@@ -1,4 +1,5 @@
 const button = document.getElementById("button");
+
 const scoreEl = document.getElementById("score");
 const timerEl = document.getElementById("timer");
 
@@ -19,11 +20,50 @@ let ignoreNextClick = false;
 
 // ---------- UI ----------
 function updateScore() {
-  scoreEl.textContent = `Clicks: ${score}`;
+  scoreEl.textContent = `Score: ${score}`;
 }
 
 function updateTimer() {
   timerEl.textContent = `Time: ${timeLeft}s`;
+}
+
+// ---------- Difficulty ----------
+function getLevel() {
+  // Increase level every 5 points
+  return Math.floor(score /2);
+}
+
+// ---------- Button size (difficulty scaling) ----------
+function updateButtonSize() {
+  const level = getLevel();
+
+  // Base sizes
+  // const baseFont = 28;
+  // const basePaddingY = 20;
+  // const basePaddingX = 40;
+
+  // Shrink rate per level
+  // const shrinkFactor = 2;
+
+  // Minimum sizes (to avoid impossible gameplay)
+  // const minFont = 12;
+  // const minPaddingY = 6;
+  // const minPaddingX = 12;
+
+  // const fontSize = Math.max(minFont, baseFont - level * shrinkFactor);
+  // const paddingY = Math.max(minPaddingY, basePaddingY - level * 1.5);
+  // const paddingX = Math.max(minPaddingX, basePaddingX - level * 2);
+
+  // button.style.fontSize = fontSize + "px";
+  // button.style.padding = `${paddingY}px ${paddingX}px`;
+
+
+
+  // Each level reduces size slightly
+  const scale = Math.max(0.25, 1 - level * 0.05);
+
+  button.style.setProperty("--scale", scale);
+
 }
 
 // ---------- Movement ----------
@@ -38,14 +78,13 @@ function moveButton() {
   button.style.top = `${y}px`;
 }
 
+// Calculate delay based on score (higher score = faster movement)
 function getRandomMoveDelay() {
-  // Base delay gets smaller as the score increases
-  // Minimum delay: 150ms
-  // Maximum delay: 1500ms
   const maxDelay = 1500;
   const minDelay = 150;
   const reductionPerPoint = 50;
 
+  // Delay decreases as score increases but never below minDelay
   return Math.max(minDelay, maxDelay - score * reductionPerPoint);
 }
 
@@ -54,6 +93,7 @@ function scheduleRandomMove() {
 
   clearTimeout(moveTimeout);
 
+  // Random delay within the allowed range
   const delay = Math.floor(Math.random() * getRandomMoveDelay()) + 100;
 
   moveTimeout = setTimeout(() => {
@@ -79,17 +119,21 @@ function startTimer() {
 
 // ---------- Game flow ----------
 function startGame() {
+  // Reset game state
   score = 0;
-  timeLeft = 10;
+  timeLeft = 20;
   gameOver = false;
   ignoreNextClick = false;
 
   updateScore();
   updateTimer();
+  updateButtonSize();
 
+  // Hide overlays
   startScreen.classList.add("hidden");
   gameOverScreen.classList.add("hidden");
 
+  // Start game
   moveButton();
   startTimer();
   scheduleRandomMove();
@@ -103,6 +147,7 @@ function endGame() {
 
   timerEl.textContent = "Time: 0s";
   finalScoreEl.textContent = `Final score: ${score}`;
+
   gameOverScreen.classList.remove("hidden");
 }
 
@@ -112,6 +157,7 @@ function endGame() {
 button.addEventListener("click", () => {
   if (gameOver) return;
 
+  // Prevent double count from touch
   if (ignoreNextClick) {
     ignoreNextClick = false;
     return;
@@ -119,8 +165,9 @@ button.addEventListener("click", () => {
 
   score++;
   updateScore();
+  updateButtonSize();
 
-  // Move the button shortly after the click
+  // Move shortly after click for better gameplay feel
   clearTimeout(moveTimeout);
   setTimeout(() => {
     if (gameOver) return;
@@ -129,7 +176,7 @@ button.addEventListener("click", () => {
   }, 120);
 });
 
-// Mobile touch
+// Mobile touch (instant reaction)
 button.addEventListener("pointerdown", (e) => {
   if (gameOver) return;
 
@@ -139,29 +186,23 @@ button.addEventListener("pointerdown", (e) => {
 
     score++;
     updateScore();
+    updateButtonSize();
 
-    // Move immediately after the tap
+    // Move immediately on touch
     clearTimeout(moveTimeout);
     moveButton();
     scheduleRandomMove();
   }
 });
 
-// Mouse hover
-// button.addEventListener("pointerenter", (e) => {
-//   if (gameOver) return;
-
-//   if (e.pointerType === "mouse") {
-//     moveButton();
-//   }
-// });
-
+// ---------- Buttons ----------
 startBtn.addEventListener("click", startGame);
-
 restartBtn.addEventListener("click", startGame);
 
 // ---------- Init ----------
 updateScore();
 updateTimer();
+updateButtonSize();
+
 gameOverScreen.classList.add("hidden");
 startScreen.classList.remove("hidden");
