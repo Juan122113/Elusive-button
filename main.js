@@ -89,24 +89,27 @@ function applyRandomDistortion() {
 
   distortionActive = true;
 
-  const level = getLevel();
+  const lineChance = 0.25; // 25% chance to become a line
+  let dx, dy;
 
-  // Chaos grows with level
-  // const minDistort = Math.max(0.1, 1 - level * 0.1);
-  // const maxDistort = Math.min(3 + level * 0.5, 25.6);
+  if (Math.random() < lineChance) {
+    // Line mode
+    if (Math.random() < 0.5) {
+      // Vertical line: very thin width
+      dx = 0.001;
+      dy = randomBetween(0.5, 2);
+    } else {
+      // Horizontal line: very thin height
+      dx = randomBetween(0.5, 2);
+      dy = 0.001;
+    }
+  } else {
+    // Extreme chaos mode
+    dx = randomBetween(0.001, 25.6);
+    dy = randomBetween(0.001, 25.6);
+  }
 
-  // const dx = randomBetween(minDistort, maxDistort);
-  // const dy = randomBetween(minDistort, maxDistort);
-
-  const dx = randomBetween(0.001, 25.6);
-  const dy = randomBetween(0.001, 25.6);
-
-  // Bias toward extreme but not always
-  const bias = Math.random();
-
-  const finalDx = bias < 0.7 ? dx : randomBetween(0.7, 1.3);
-  const finalDy = bias < 0.7 ? dy : randomBetween(0.7, 1.3);
-
+  // Apply only the distortion layer
   button.style.setProperty("--distort-x", dx);
   button.style.setProperty("--distort-y", dy);
 
@@ -115,11 +118,12 @@ function applyRandomDistortion() {
 
     distortionActive = false;
 
+    // Reset distortion
     button.style.setProperty("--distort-x", 1);
     button.style.setProperty("--distort-y", 1);
 
     scheduleRandomDistortion();
-  }, Math.random() * 220 + 80);
+  }, Math.floor(Math.random() * 220) + 80);
 }
 
 function scheduleRandomDistortion() {
@@ -128,6 +132,7 @@ function scheduleRandomDistortion() {
   const delay = Math.random() * 2500 + 700;
 
   distortionTimeout = setTimeout(() => {
+    if (gameOver) return;
     applyRandomDistortion();
   }, delay);
 }
