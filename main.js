@@ -1,5 +1,5 @@
+// ---------- DOM ----------
 const button = document.getElementById("button");
-
 const scoreEl = document.getElementById("score");
 const timerEl = document.getElementById("timer");
 
@@ -10,16 +10,16 @@ const restartBtn = document.getElementById("restartBtn");
 const startScreen = document.getElementById("startScreen");
 const startBtn = document.getElementById("startBtn");
 
+// ---------- State ----------
 let moveTimeout;
 let timerInterval;
+let distortionTimeout;
 
 let score = 0;
 let timeLeft = 10;
 let gameOver = true;
 let ignoreNextClick = false;
-
-let currentScaleX = 1;
-let currentScaleY = 1;
+let distortionActive = false;
 
 // ---------- UI ----------
 function updateScore() {
@@ -58,18 +58,20 @@ function randomGeometricClipPath() {
   return shapes[Math.floor(Math.random() * shapes.length)];
 }
 
-// ---------- Visual changes ----------
+// ---------- Visual logic (scale + shape) ----------
 function updateButtonLook() {
   const level = getLevel();
 
   // Base shrinking with level
-  const baseScale = Math.max(0.25, 1 - level * 0.05);
+  const baseScale = Math.max(0.5, 1 - level * 0.05);
 
-  // Random stretch/squash
-  currentScaleX = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
-  currentScaleY = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
+  // Uneven stretch/squash
+  const scaleX = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
+  const scaleY = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
 
-  button.style.transform = `scale(${currentScaleX}, ${currentScaleY})`;
+  // Set CSS variables (no direct transform overwrite)
+  button.style.setProperty("--scale-x", scaleX);
+  button.style.setProperty("--scale-y", scaleY);
 
   // Random shape type
   if (Math.random() < 0.4) {
@@ -81,18 +83,53 @@ function updateButtonLook() {
   }
 }
 
+// ---------- Random distortion (independent layer) ----------
+function applyRandomDistortion() {
+  if (gameOver || distortionActive) return;
+
+  distortionActive = true;
+
+  const dx = randomBetween(0.6, 1.6);
+  const dy = randomBetween(0.6, 1.6);
+
+  // Apply temporary distortion
+  button.style.setProperty("--distort-x", dx);
+  button.style.setProperty("--distort-y", dy);
+
+  setTimeout(() => {
+    if (gameOver) return;
+
+    distortionActive = false;
+
+    // Reset distortion
+    button.style.setProperty("--distort-x", 1);
+    button.style.setProperty("--distort-y", 1);
+
+    scheduleRandomDistortion();
+  }, Math.random() * 220 + 80);
+}
+
+function scheduleRandomDistortion() {
+  clearTimeout(distortionTimeout);
+
+  const delay = Math.random() * 2500 + 700;
+
+  distortionTimeout = setTimeout(() => {
+    applyRandomDistortion();
+  }, delay);
+}
+
 // ---------- Movement ----------
 function moveButton() {
   updateButtonLook();
 
-  const visualWidth = button.offsetWidth * currentScaleX;
-  const visualHeight = button.offsetHeight * currentScaleY;
+  const rect = button.getBoundingClientRect();
 
-  const maxX = Math.max(0, window.innerWidth - visualWidth);
-  const maxY = Math.max(0, window.innerHeight - visualHeight);
+  const maxX = Math.max(0, window.innerWidth - rect.width);
+  const maxY = Math.max(0, window.innerHeight - rect.height);
 
-  const x = Math.floor(Math.random() * maxX);
-  const y = Math.floor(Math.random() * maxY);
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
 
   button.style.left = `${x}px`;
   button.style.top = `${y}px`;
@@ -141,6 +178,7 @@ function startGame() {
   timeLeft = 20;
   gameOver = false;
   ignoreNextClick = false;
+  distortionActive = false;
 
   updateScore();
   updateTimer();
@@ -151,6 +189,7 @@ function startGame() {
   moveButton();
   startTimer();
   scheduleRandomMove();
+  scheduleRandomDistortion();
 }
 
 function endGame() {
@@ -158,6 +197,7 @@ function endGame() {
 
   clearTimeout(moveTimeout);
   clearInterval(timerInterval);
+  clearTimeout(distortionTimeout);
 
   timerEl.textContent = "Time: 0s";
   finalScoreEl.textContent = `Final score: ${score}`;
@@ -180,6 +220,7 @@ button.addEventListener("click", () => {
   updateScore();
 
   clearTimeout(moveTimeout);
+
   setTimeout(() => {
     if (!gameOver) {
       moveButton();

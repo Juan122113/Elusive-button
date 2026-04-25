@@ -17,6 +17,7 @@ body {
     height: 100vh;
 }
 
+/* HUD */
 #score,
 #timer {
   position: fixed;
@@ -35,6 +36,7 @@ body {
   top: 48px;
 }
 
+/* Start screen */
 #startScreen {
   position: fixed;
   top: 0;
@@ -52,10 +54,10 @@ body {
   display: none;
 }
 
+/* Base button */
 button {
     background-color: crimson;
     position: fixed;
-    /* padding: .5rem 1.25rem; */
     padding: clamp(10px, 1.5vmin, 20px) clamp(16px, 3vmin, 40px);
     border-radius: 25px;
     color: white;
@@ -66,13 +68,31 @@ button {
     text-align: center;
 }
 
+/* Main game button */
 #button {
-  --scale: 1;
+  /* Base scale (difficulty) */
+  --scale-x: 1;
+  --scale-y: 1;
 
-  transform: scale(var(--scale));
+  /* Temporary distortion */
+  --distort-x: 1;
+  --distort-y: 1;
+
+  transform: scale(
+    calc(var(--scale-x) * var(--distort-x)),
+    calc(var(--scale-y) * var(--distort-y))
+  );
+
   transform-origin: center;
-  /* transition: transform 0.2s ease, border-radius 0.2s; */
-  transition: transform 0.15s ease, border-radius 0.15s ease, clip-path 0.15s ease, left 0.12s linear, top 0.12s linear;
+
+  /* Smooth but responsive transitions */
+  transition:
+    transform 0.15s ease,
+    border-radius 0.15s ease,
+    clip-path 0.15s ease,
+    left 0.12s linear,
+    top 0.12s linear;
+
   will-change: transform, border-radius, clip-path, left, top;
 }
 
