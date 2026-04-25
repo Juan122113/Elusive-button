@@ -89,8 +89,8 @@ function applyRandomDistortion() {
 
   distortionActive = true;
 
-  const dx = randomBetween(0.6, 1.6);
-  const dy = randomBetween(0.6, 1.6);
+  const dx = randomBetween(0.001, 25.6);
+  const dy = randomBetween(0.001, 25.6);
 
   // Apply temporary distortion
   button.style.setProperty("--distort-x", dx);
