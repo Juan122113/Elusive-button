@@ -63,11 +63,11 @@ function updateButtonLook() {
   const level = getLevel();
 
   // Base shrinking with level
-  const baseScale = Math.max(0.5, 1 - level * 0.05);
+  const baseScale = Math.max(0.1, 1 - level * 0.05);
 
   // Uneven stretch/squash
-  const scaleX = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
-  const scaleY = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.75, 1.35)));
+  const scaleX = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.1, 2)));
+  const scaleY = Math.max(0.45, Math.min(1.8, baseScale * randomBetween(0.1, 2)));
 
   // Set CSS variables (no direct transform overwrite)
   button.style.setProperty("--scale-x", scaleX);
@@ -89,10 +89,24 @@ function applyRandomDistortion() {
 
   distortionActive = true;
 
+  const level = getLevel();
+
+  // Chaos grows with level
+  // const minDistort = Math.max(0.1, 1 - level * 0.1);
+  // const maxDistort = Math.min(3 + level * 0.5, 25.6);
+
+  // const dx = randomBetween(minDistort, maxDistort);
+  // const dy = randomBetween(minDistort, maxDistort);
+
   const dx = randomBetween(0.001, 25.6);
   const dy = randomBetween(0.001, 25.6);
 
-  // Apply temporary distortion
+  // Bias toward extreme but not always
+  const bias = Math.random();
+
+  const finalDx = bias < 0.7 ? dx : randomBetween(0.7, 1.3);
+  const finalDy = bias < 0.7 ? dy : randomBetween(0.7, 1.3);
+
   button.style.setProperty("--distort-x", dx);
   button.style.setProperty("--distort-y", dy);
 
@@ -101,7 +115,6 @@ function applyRandomDistortion() {
 
     distortionActive = false;
 
-    // Reset distortion
     button.style.setProperty("--distort-x", 1);
     button.style.setProperty("--distort-y", 1);
 

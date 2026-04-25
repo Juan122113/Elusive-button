@@ -61,7 +61,7 @@ button {
     padding: clamp(10px, 1.5vmin, 20px) clamp(16px, 3vmin, 40px);
     border-radius: 25px;
     color: white;
-    height: 3.5rem;
+    /* height: 3.5rem; */
     touch-action: manipulation;
     z-index: 999;
     font-size: clamp(14px, 2vmin, 28px);
@@ -94,6 +94,10 @@ button {
     top 0.12s linear;
 
   will-change: transform, border-radius, clip-path, left, top;
+
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .click {
