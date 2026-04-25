@@ -89,29 +89,35 @@ function applyRandomDistortion() {
 
   distortionActive = true;
 
-  const lineChance = 0.25; // 25% chance to become a line
-  let dx, dy;
+  const vanishChance = 0.12; // 12% chance to disappear almost completely
+  const lineChance = 0.25;   // 25% chance to become a line
 
-  if (Math.random() < lineChance) {
+  let dx, dy;
+  let opacity = 1;
+
+  if (Math.random() < vanishChance) {
+    // Vanish mode: almost invisible
+    dx = randomBetween(0.00001, 0.01);
+    dy = randomBetween(0.00001, 0.01);
+    opacity = randomBetween(0, 0.15);
+  } else if (Math.random() < lineChance) {
     // Line mode
     if (Math.random() < 0.5) {
-      // Vertical line: very thin width
-      dx = 0.001;
-      dy = randomBetween(0.5, 2);
+      dx = 0.00001;
+      dy = randomBetween(0.05, 1.5);
     } else {
-      // Horizontal line: very thin height
-      dx = randomBetween(0.5, 2);
-      dy = 0.001;
+      dx = randomBetween(0.05, 1.5);
+      dy = 0.00001;
     }
   } else {
     // Extreme chaos mode
-    dx = randomBetween(0.001, 25.6);
-    dy = randomBetween(0.001, 25.6);
+    dx = randomBetween(0.0001, 25.6);
+    dy = randomBetween(0.0001, 25.6);
   }
 
-  // Apply only the distortion layer
   button.style.setProperty("--distort-x", dx);
   button.style.setProperty("--distort-y", dy);
+  button.style.opacity = opacity;
 
   setTimeout(() => {
     if (gameOver) return;
@@ -121,6 +127,7 @@ function applyRandomDistortion() {
     // Reset distortion
     button.style.setProperty("--distort-x", 1);
     button.style.setProperty("--distort-y", 1);
+    button.style.opacity = 1;
 
     scheduleRandomDistortion();
   }, Math.floor(Math.random() * 220) + 80);
