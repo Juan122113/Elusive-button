@@ -16,7 +16,7 @@ let timerInterval;
 let distortionTimeout;
 
 let score = 0;
-let timeLeft = 10;
+let timeLeft = 20;
 let gameOver = true;
 let ignoreNextClick = false;
 let distortionActive = false;
